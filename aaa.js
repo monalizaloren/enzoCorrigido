@@ -1,43 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Página de mensagens Kwitter</title>
-<script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/live/3.1/firebase.js"></script>
-<link href="https://fonts.googleapis.com/css?family=Yeon+Sung&display=swap" rel="stylesheet"><meta name="viewport" content="width=device-width, initial-scale=1">
+const firebaseConfig = {
+  apiKey: "AIzaSyCgRnbmUKPG84OFSRrIlHnoWHcCnQNS9Ek",
+  authDomain: "teste93-97.firebaseapp.com",
+  databaseURL: "https://teste93-97-default-rtdb.firebaseio.com",
+  projectId: "teste93-97",
+  storageBucket: "teste93-97.appspot.com",
+  messagingSenderId: "199592495195",
+  appId: "1:199592495195:web:6f8e0da06238ada2d0d77e"
+};
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-<link rel="stylesheet" type="text/css" href="style.css">
+  
+	user_name = localStorage.getItem("userName");
+	room_name = localStorage.getItem("roomName");
 
-</head>
-<body>
+function send()
+{
+  msg = document.getElementById("msg").value;
+  firebase.database().ref(room_name).push({
+    name:user_name,
+    message:msg,
+    like:0
+   });
 
-<div class="container">
-	<button id="logout" onclick="logout();" class="glyphicon glyphicon-log-out btn btn-danger">Logout</button>
-	<center>
-		<h1 class="header">	
-			Kwitter	
-			<sup>
-				<img src="m2.png">
-			</sup>
-		</h1>
-		<div id="output" style="text-align: left;margin-bottom: 70px;"> </div>
-	</center>
-</div>
+  document.getElementById("msg").value = "";
+}
 
-<center>
-	<div class="input_div_message_page">
-		<label>Enviar:</label>
-		<input type="text" id="msg" class="form-control" placeholder="Mensagem">
-		<button onclick="send()" class="btn btn-success">Enviar</button>
-	</div>
-</center>
+function getData() { firebase.database().ref("/"+room_name).on('value', function(snapshot) { document.getElementById("output").innerHTML = ""; snapshot.forEach(function(childSnapshot) { childKey  = childSnapshot.key; childData = childSnapshot.val(); if(childKey != "purpose") {
+         firebase_message_id = childKey;
+         message_data = childData;
+//Start code
+         console.log(firebase_message_id);
+	       console.log(message_data);
+	       name = message_data['name'];
+	       message = message_data['message'];
+         like = message_data['like'];
+         name_with_tag = "<h4> "+ name +"<img class='user_tick' src='tick.png'></h4>";
+         message_with_tag = "<h4 class='message_h4'>" + message + "</h4>";
+like_button ="<button class='btn btn-warning' id="+firebase_message_id+" value="+like+" onclick='updateLike(this.id)'>";
+         span_with_tag = "<span class='glyphicon glyphicon-thumbs-up'>Like: "+ like +"</span></button><hr>";
 
-<script src="kwitter_page.js"></script>
-</body>
-</html>
+        row = name_with_tag + message_with_tag +like_button + span_with_tag;       
+        document.getElementById("output").innerHTML += row;
+//End code
+      } });  }); }
+getData();
+
+function updateLike(message_id)
+{
+  console.log("clicked on like button - " + message_id);
+	button_id = message_id;
+	likes = document.getElementById(button_id).value;
+	updated_likes = Number(likes) + 1;
+	console.log(updated_likes);
+
+	firebase.database().ref(room_name).child(message_id).update({
+		like : updated_likes  
+	 });
+
+}
+
+function logout() {
+localStorage.removeItem("???");
+localStorage.removeItem("???");
+window.location.replace("index.html");
+}
